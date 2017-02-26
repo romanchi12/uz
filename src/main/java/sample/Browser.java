@@ -1,6 +1,22 @@
 package sample;
 
 
+import controllers.MonitoringCtrl;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.scene.control.Label;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.ParseException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+
 public class Browser extends Task<Void> {
     private MonitoringCtrl monitoringCtrl = null;
     public Browser(MonitoringCtrl monitoringCtrl) {
@@ -34,7 +50,7 @@ public class Browser extends Task<Void> {
                 connection.setRequestProperty("Content-Length", "214");
                 connection.setRequestProperty("Cookie", Data.getCookies());
                 connection.setRequestProperty("Connection", "keep-alive");
-                String query = "station_id_from=" + this.monitoringCtrl.getFromId()+"&station_id_till="+this.monitoringCtrl.getToId()+"&station_from="+URLEncoder.encode(this.monitoringCtrl.getFrom(),"UTF-8")+"&station_till="+URLEncoder.encode(this.monitoringCtrl.getTo(),"UTF-8")+"&date_dep="+this.monitoringCtrl.getDateDep()+"&time_dep=00%3A00&time_dep_till=&another_ec=0&search=";
+                String query = "station_id_from=" + this.monitoringCtrl.getFromId()+"&station_id_till="+this.monitoringCtrl.getToId()+"&station_from=" + URLEncoder.encode(this.monitoringCtrl.getFrom(),"UTF-8")+"&station_till="+URLEncoder.encode(this.monitoringCtrl.getTo(),"UTF-8")+"&date_dep="+this.monitoringCtrl.getDateDep()+"&time_dep=00%3A00&time_dep_till=&another_ec=0&search=";
                 connection.getOutputStream().write(query.getBytes("UTF8"));
                 int responseCode = connection.getResponseCode();
                 System.out.println("Response Code: " + responseCode);
