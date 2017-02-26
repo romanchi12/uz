@@ -14,13 +14,11 @@ public class ControllerManager {
     private static HashMap<String,Ctrl> controllers = new HashMap<String,Ctrl>();
     private static HashMap<String,Scene> scenes = new HashMap<String, Scene>();
     public static void addController(String key, Ctrl controller){
-        System.out.println(controllers.get(key));
         if(controllers.get(key)==null){
             controllers.put(key,controller);
         }
     }
     public static void addScene(String key, Scene scene){
-        System.out.println(scenes.get(key));
         if(scenes.get(key)==null){
             scenes.put(key,scene);
         }

@@ -16,16 +16,19 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 
 public class Browser extends Task<Void> {
+    private static ArrayList<Browser> allBrowserThreads = new ArrayList<Browser>();
+    public static ArrayList<Browser> getAllBrowserThreads(){
+        return Browser.allBrowserThreads;
+    }
     private MonitoringCtrl monitoringCtrl = null;
     public Browser(MonitoringCtrl monitoringCtrl) {
         this.monitoringCtrl = monitoringCtrl;
         this.monitoringCtrl.getInformationText().textProperty().bind(this.messageProperty());
-
+        Browser.allBrowserThreads.add(this);
     }
-
-    //sd
     @Override
     protected Void call() throws Exception {
         this.updateMessage("Моніторинг розпочинається");

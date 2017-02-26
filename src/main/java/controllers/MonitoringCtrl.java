@@ -22,7 +22,6 @@ public class MonitoringCtrl extends Ctrl{
     String from;
     String to;
     String dateDep;
-
     @FXML
     Label train;
     @FXML
@@ -72,12 +71,6 @@ public class MonitoringCtrl extends Ctrl{
         }
         stage.setScene(ControllerManager.getScenes().get("SelectingTrainCtrl"));
     }
-
-
-
-
-
-
     public String getFrom() {return from;}
     public void setFrom(String from) {this.from = from;}
     public String getTo() {return to;}
@@ -105,8 +98,4 @@ public class MonitoringCtrl extends Ctrl{
         return informationText;
     }
 
-    String cookie;
-    public void setCookie(String cookie){
-
-    }
 }

@@ -60,7 +60,6 @@ public class SelectingTrainCtrl extends Ctrl{
         monitoringCtrl.setFromId(new String(getCity(from.getText())));
         monitoringCtrl.setToId(new String(getCity(to.getText())));
         LocalDate localDate = date.getValue();
-        System.out.println(localDate);
         Instant instant = Instant.from(localDate.atStartOfDay(ZoneId.systemDefault()));
         Date date = Date.from(instant);
         SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
