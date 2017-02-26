@@ -1,8 +1,8 @@
 package sample;
 
-import controllers.Controller;
+
+import controllers.MonitoringCtrl;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import org.json.simple.JSONArray;
@@ -12,22 +12,20 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
-import java.util.List;
-
-/**
- * Created by Роман on 26.01.2017.
- */
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class Browser extends Task<Void> {
-    private Controller controller = null;
-    public Browser(Controller controller) {
-        this.controller = controller;
-        this.controller.getInformationText().textProperty().bind(this.messageProperty());
+    private MonitoringCtrl monitoringCtrl = null;
+    public Browser(MonitoringCtrl monitoringCtrl) {
+        this.monitoringCtrl = monitoringCtrl;
+        this.monitoringCtrl.getInformationText().textProperty().bind(this.messageProperty());
 
     }
 
-
+    //sd
     @Override
     protected Void call() throws Exception {
         this.updateMessage("Моніторинг розпочинається");
@@ -52,7 +50,7 @@ public class Browser extends Task<Void> {
                 connection.setRequestProperty("Content-Length", "214");
                 connection.setRequestProperty("Cookie", Data.getCookies());
                 connection.setRequestProperty("Connection", "keep-alive");
-                String query = "station_id_from=" + this.controller.getFromId()+"&station_id_till="+this.controller.getToId()+"&station_from="+URLEncoder.encode(this.controller.getFrom(),"UTF-8")+"&station_till="+URLEncoder.encode(this.controller.getTo(),"UTF-8")+"&date_dep="+this.controller.getDateDep()+"&time_dep=00%3A00&time_dep_till=&another_ec=0&search=";
+                String query = "station_id_from=" + this.monitoringCtrl.getFromId()+"&station_id_till="+this.monitoringCtrl.getToId()+"&station_from=" + URLEncoder.encode(this.monitoringCtrl.getFrom(),"UTF-8")+"&station_till="+URLEncoder.encode(this.monitoringCtrl.getTo(),"UTF-8")+"&date_dep="+this.monitoringCtrl.getDateDep()+"&time_dep=00%3A00&time_dep_till=&another_ec=0&search=";
                 connection.getOutputStream().write(query.getBytes("UTF8"));
                 int responseCode = connection.getResponseCode();
                 System.out.println("Response Code: " + responseCode);
@@ -69,16 +67,16 @@ public class Browser extends Task<Void> {
                     JSONArray value = (JSONArray) jsonObject.get("value");
                     JSONObject parameters = (JSONObject) value.get(0);
                     final String trainNumber = String.valueOf(parameters.get("num"));
-                    final Label train = this.controller.getTrain();
+                    final Label train = this.monitoringCtrl.getTrain();
                     Platform.runLater(new Runnable() {
                         public void run() {
                             train.setText(trainNumber);
                         }
                     });
-                    final Label from = this.controller.getFromLabel();
-                    final Label to = this.controller.getToLabel();
-                    final Label date = this.controller.getDateLabel();
-                    final String fromtodate [] ={this.controller.getFrom().toUpperCase(),this.controller.getTo().toUpperCase(),this.controller.getDateDep().toUpperCase()};
+                    final Label from = this.monitoringCtrl.getFromLabel();
+                    final Label to = this.monitoringCtrl.getToLabel();
+                    final Label date = this.monitoringCtrl.getDateLabel();
+                    final String fromtodate [] ={this.monitoringCtrl.getFrom().toUpperCase(),this.monitoringCtrl.getTo().toUpperCase(),this.monitoringCtrl.getDateDep().toUpperCase()};
                     Platform.runLater(new Runnable() {
                         public void run() {
                             from.setText(fromtodate[0]);
@@ -90,7 +88,7 @@ public class Browser extends Task<Void> {
                     for (int i = 0; i < types.size(); i++) {
                         JSONObject type = (JSONObject) types.get(i);
                         if (type.get("title").equals("Купе")) {
-                            final Label cupe = this.controller.getCupe();
+                            final Label cupe = this.monitoringCtrl.getCupe();
                             final String cupePlaces = String.valueOf(type.get("places"));
                             Platform.runLater(new Runnable() {
                                 public void run() {
@@ -99,7 +97,7 @@ public class Browser extends Task<Void> {
                             });
                         }
                         if (type.get("title").equals("Люкс")) {
-                            final Label lux = this.controller.getLux();
+                            final Label lux = this.monitoringCtrl.getLux();
                             final String luxPlaces = String.valueOf(type.get("places"));
                             Platform.runLater(new Runnable() {
                                 public void run() {
@@ -108,7 +106,7 @@ public class Browser extends Task<Void> {
                             });
                         }
                         if (type.get("title").equals("Плацкарт")) {
-                            final Label platzkart = this.controller.getPlatzkart();
+                            final Label platzkart = this.monitoringCtrl.getPlatzkart();
                             final String platzkartPlaces = String.valueOf(type.get("places"));
                             Platform.runLater(new Runnable() {
                                 public void run() {

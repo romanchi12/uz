@@ -1,32 +1,26 @@
 package sample;
 
-import controllers.Controller;
+import controllers.MonitoringCtrl;
 import controllers.ControllerManager;
 import javafx.application.Application;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.*;
-import java.util.List;
-
 public class Main extends Application {
 
     @Override
     public void start(Stage stage) throws Exception{
-        if(ControllerManager.getControllers().get("Controller")==null){
+        if(ControllerManager.getControllers().get("MonitoringCtrl")==null){
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(Main.class.getResource("/view/sample.fxml"));
+            loader.setLocation(Main.class.getResource("/view/MonitoringView.fxml"));
             Parent monitoringLayout = loader.load();
-            ControllerManager.addController("Controller", (Controller)loader.getController());
+            ControllerManager.addController("MonitoringCtrl", (MonitoringCtrl)loader.getController());
             Scene monitoringScene = new Scene(monitoringLayout);
-            ControllerManager.addScene("Controller", monitoringScene);
+            ControllerManager.addScene("MonitoringCtrl", monitoringScene);
         }
-        stage.setScene(ControllerManager.getScenes().get("Controller"));
+        stage.setScene(ControllerManager.getScenes().get("MonitoringCtrl"));
         stage.setTitle("Моніторинг білетів");
         //stage.setFullScreen(true);
         stage.show();
