@@ -9,7 +9,7 @@ public class Browser extends Task<Void> {
 
     }
 
-
+    //sd
     @Override
     protected Void call() throws Exception {
         this.updateMessage("Моніторинг розпочинається");
