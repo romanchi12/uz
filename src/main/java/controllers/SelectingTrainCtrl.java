@@ -69,12 +69,12 @@ public class SelectingTrainCtrl extends Ctrl{
     public String getCity(String cityName){
         try {
             MonitoringCtrl monitoringCtrl = (MonitoringCtrl) ControllerManager.getControllers().get("MonitoringCtrl");
-            URL url = new URL("http://booking.uz.gov.ua/purchase/station/" + URLEncoder.encode(cityName,"UTF-8")+ "/");
+            URL url = new URL("http://booking.uz.gov.ua/purchase/station/?term="+URLEncoder.encode(cityName,"UTF-8"));
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("POST");
+            connection.setRequestMethod("GET");
             connection.setRequestProperty("Host", "booking.uz.gov.ua");
             connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 6.2; rv:47.0) Gecko/20100101 Firefox/47.0");
-            connection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            connection.setRequestProperty("Accept", "application/json, text/javascript, */*; q=0.01");
             connection.setRequestProperty("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
             connection.setRequestProperty("Accept-Encoding","gzip, deflate");
             connection.setRequestProperty("DNT", "1");
@@ -94,12 +94,11 @@ public class SelectingTrainCtrl extends Ctrl{
                     response += new String(temp,0,readed,"UTF-8");
                 }
                 System.out.println(response);
-                JSONObject jsonObject = (JSONObject) JSONValue.parseWithException(response);
-                JSONArray cities = (JSONArray) jsonObject.get("value");
+                JSONArray cities = (JSONArray) JSONValue.parseWithException(response);
                 for(int i=0;i<cities.size();i++){
                     JSONObject city = (JSONObject) cities.get(i);
-                    if(String.valueOf(city.get("title")).toLowerCase().equals(cityName.toLowerCase())){
-                        return String.valueOf(city.get("station_id"));
+                    if(String.valueOf(city.get("label")).toLowerCase().equals(cityName.toLowerCase())){
+                        return String.valueOf(city.get("value"));
                     }
                 }
             }
