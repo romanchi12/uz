@@ -61,15 +61,7 @@ public class MonitoringCtrl extends Ctrl{
     @FXML
     public void changeTrain(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        if(ControllerManager.getControllers().get("SelectingTrainCtrl")==null){
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(Main.class.getResource("/view/SelectingTrainView.fxml"));
-            Parent trainLayout = loader.load();
-            ControllerManager.addController("SelectingTrainCtrl",(SelectingTrainCtrl)loader.getController());
-            Scene trainScene = new Scene(trainLayout);
-            ControllerManager.addScene("SelectingTrainCtrl", trainScene);
-        }
-        stage.setScene(ControllerManager.getScenes().get("SelectingTrainCtrl"));
+        stage.setScene(ControllerManager.changeSceneTo("SelectingTrainCtrl", "SelectingTrainView"));
     }
     public String getFrom() {return from;}
     public void setFrom(String from) {this.from = from;}
@@ -98,4 +90,8 @@ public class MonitoringCtrl extends Ctrl{
         return informationText;
     }
 
+    public void gotosearchwithtransfer(ActionEvent actionEvent) throws IOException {
+        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(ControllerManager.changeSceneTo("FindAllRoutesCtrl","FindAllRoutesView"));
+    }
 }

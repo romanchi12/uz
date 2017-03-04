@@ -1,8 +1,12 @@
 package controllers;
 
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import sample.Main;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -33,7 +37,22 @@ public class ControllerManager {
     public static ControllerManager getInstance() {
         return ourInstance;
     }
-
+    public static Scene changeSceneTo(String controllerName, String viewName){
+        if(!ControllerManager.getControllers().containsKey(controllerName)){
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Main.class.getResource("/view/" + viewName + ".fxml"));
+            Parent root = null;
+            try {
+                root = loader.load();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ControllerManager.getControllers().put(controllerName, (Ctrl) loader.getController());
+            Scene scene = new Scene(root);
+            ControllerManager.getScenes().put(controllerName, scene);
+        }
+        return ControllerManager.getScenes().get(controllerName);
+    }
     private ControllerManager() {
 
     }
