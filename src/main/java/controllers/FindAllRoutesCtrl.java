@@ -4,17 +4,24 @@ import com.sun.org.apache.xml.internal.security.Init;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import sample.FindAllRoutesTask;
-import sample.Train;
-import sample.TrainCouple;
-import sample.UZApi;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import sample.*;
 
+import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -29,6 +36,9 @@ import java.util.ResourceBundle;
 public class FindAllRoutesCtrl extends Ctrl implements Initializable{
 
     ObservableList<TrainCouple> trains;
+    ObservableList<String> citiesFrom;
+    ObservableList<String> citiesAcross;
+    ObservableList<String> citiesTo;
     public String getDateDepartment() {
         return dateDepartment;
     }
@@ -45,15 +55,15 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
         return toId;
     }
 
-    public TextField getFrom() {
+    public ComboBox<String> getFrom() {
         return from;
     }
 
-    public TextField getAcross() {
+    public ComboBox<String> getAcross() {
         return across;
     }
 
-    public TextField getTo() {
+    public ComboBox<String> getTo() {
         return to;
     }
     public Button getSearchWithTransfersBtn() {
@@ -67,13 +77,13 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
 
 
     @FXML
-    public TextField from;
+    public ComboBox<String> from;
     @FXML
     public CheckBox isWithTransfers;
     @FXML
-    public TextField across;
+    public ComboBox<String> across;
     @FXML
-    public TextField to;
+    public ComboBox<String> to;
     @FXML
     public DatePicker date;
     @FXML
@@ -84,10 +94,6 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
     public TableColumn<TrainCouple,String> numtonum;
     @FXML
     public TableColumn<TrainCouple,String> allTime;
-    @FXML
-    public void toggleTransfers(ActionEvent actionEvent) {
-
-    }
 
 
 
@@ -99,9 +105,9 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
         Date date = Date.from(instant);
         SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
         this.dateDepartment = new String(f.format(date));
-        this.fromId = UZApi.getCityIdByName(from.getText());
-        this.acrossId = UZApi.getCityIdByName(across.getText());
-        this.toId = UZApi.getCityIdByName(to.getText());
+        this.fromId = UZApi.getCityIdByName(from.getSelectionModel().getSelectedItem());
+        this.acrossId = UZApi.getCityIdByName(across.getSelectionModel().getSelectedItem());
+        this.toId = UZApi.getCityIdByName(to.getEditor().getText());
         System.out.println(this.dateDepartment + " " + this.fromId + " " + this.toId + " " + this.acrossId);
         new Thread(new FindAllRoutesTask()).start();
     }
@@ -117,8 +123,68 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
 
     public void initialize(URL location, ResourceBundle resources) {
         trains = FXCollections.observableArrayList();
+        citiesFrom = FXCollections.observableArrayList();
+        citiesAcross = FXCollections.observableArrayList();
+        citiesTo = FXCollections.observableArrayList();
         numtonum.setCellValueFactory(new PropertyValueFactory<TrainCouple,String>("numtonum"));
         allTime.setCellValueFactory(new PropertyValueFactory<TrainCouple,String>("allTime"));
         trainsTable.setItems(trains);
+        trainsTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            public void handle(MouseEvent event) {
+                //dialog
+            }
+        });
+        from.setItems(citiesFrom);
+        from.setVisibleRowCount(10);
+        from.autosize();
+        from.getEditor().setOnKeyTyped(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent event) {
+                citiesFrom.clear();
+                //String city = ((ComboBox<String>) event.getSource()).getSelectionModel().getSelectedItem();
+                JSONArray citiesList = UZApi.getListOfCitiesByName(from.getEditor().getText());
+                for(int i=0;i<citiesList.size();i++){
+                    JSONObject city = (JSONObject) citiesList.get(i);
+                    String cityName = String.valueOf(city.get("label"));
+                    citiesFrom.add(cityName);
+                }
+                from.show();
+            }
+        });
+        across.disableProperty().bind(isWithTransfers.selectedProperty().not());
+        across.setItems(citiesAcross);
+        across.setVisibleRowCount(10);
+        across.autosize();
+        across.getEditor().setOnKeyTyped(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent event) {
+                citiesAcross.clear();
+                //String city = ((ComboBox<String>) event.getSource()).getSelectionModel().getSelectedItem();
+                JSONArray citiesList = UZApi.getListOfCitiesByName(across.getEditor().getText());
+                for(int i=0;i<citiesList.size();i++){
+                    JSONObject city = (JSONObject) citiesList.get(i);
+                    String cityName = String.valueOf(city.get("label"));
+                    citiesAcross.add(cityName);
+                }
+                across.show();
+            }
+        });
+        to.setItems(citiesTo);
+        to.setVisibleRowCount(10);
+        to.autosize();
+        to.getEditor().setOnKeyTyped(new EventHandler<KeyEvent>() {
+            public void handle(KeyEvent event) {
+                citiesTo.clear();
+                //String city = ((ComboBox<String>) event.getSource()).getSelectionModel().getSelectedItem();
+                JSONArray citiesList = UZApi.getListOfCitiesByName(to.getEditor().getText());
+                for(int i=0;i<citiesList.size();i++){
+                    JSONObject city = (JSONObject) citiesList.get(i);
+                    String cityName = String.valueOf(city.get("label"));
+                    citiesTo.add(cityName);
+                }
+                to.show();
+            }
+        });
     }
+
+
+
 }

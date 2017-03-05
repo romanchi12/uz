@@ -86,6 +86,49 @@ public class UZApi {
         }
         return null;
     }
+    public static JSONArray getListOfCitiesByName(String cityName){
+        try {
+            MonitoringCtrl monitoringCtrl = (MonitoringCtrl) ControllerManager.getControllers().get("MonitoringCtrl");
+            URL url = new URL("http://booking.uz.gov.ua/purchase/station/?term="+URLEncoder.encode(cityName,"UTF-8"));
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Host", "booking.uz.gov.ua");
+            connection.setRequestProperty("User-Agent","Mozilla/5.0 (Windows NT 6.2; rv:47.0) Gecko/20100101 Firefox/47.0");
+            connection.setRequestProperty("Accept", "application/json, text/javascript, */*; q=0.01");
+            connection.setRequestProperty("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
+            connection.setRequestProperty("Accept-Encoding","gzip, deflate");
+            connection.setRequestProperty("DNT", "1");
+            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Referer","http://booking.uz.gov.ua/ru/");
+            connection.setRequestProperty("Content-Length","0");
+            connection.setRequestProperty("Cookie", Data.getCookies());
+            connection.setRequestProperty("Connection", "keep-alive");
+            int responseCode = connection.getResponseCode();
+            System.out.println("Response Code: " + responseCode);
+            InputStream is = connection.getInputStream();
+            if(responseCode==200){
+                String response = "";
+                byte temp[] = new byte [1024];
+                int readed = -1;
+                while ((readed = is.read(temp))!=-1){
+                    response += new String(temp,0,readed,"UTF-8");
+                }
+                System.out.println(response);
+                JSONArray cities = (JSONArray) JSONValue.parseWithException(response);
+                if(cities.size()>10){
+                    return new JSONArray();
+                }
+                return cities;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     public static JSONObject purchasesearch(String fromId, String toId,String from, String to, String dateDepartment){
         try {
             URL url = new URL("http://booking.uz.gov.ua/ru/purchase/search/");
