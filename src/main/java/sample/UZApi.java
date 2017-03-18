@@ -145,7 +145,7 @@ public class UZApi {
             connection.setRequestProperty("GV-Ajax", "1");
             connection.setRequestProperty("GV-Referer", "http://booking.uz.gov.ua/ru/");
             connection.setRequestProperty("GV-Screen", "1366x768");
-            connection.setRequestProperty("GV-Token", Data.getToken());
+            //connection.setRequestProperty("GV-Token", Data.getToken());
             connection.setRequestProperty("Referer", "http://booking.uz.gov.ua/ru/");
             connection.setRequestProperty("Content-Length", "214");
             connection.setRequestProperty("Cookie", Data.getCookies());
@@ -164,23 +164,41 @@ public class UZApi {
                 }
                 System.out.println(response);
                 JSONObject jsonObject = (JSONObject) JSONValue.parseWithException(response);
-                return jsonObject;
+                System.out.println("jsonobject.error = " + jsonObject.get("error"));
+                System.out.println((String)(jsonObject.get("error")));
+                if(((jsonObject.get("error")) == null)){
+                    System.out.println("return jsonObject;");
+                    return jsonObject;
+                }
+                System.out.println("return null;");
+                return null;
             }
         } catch (ProtocolException e) {
             e.printStackTrace();
+            return null;
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            return null;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         } catch (ParseException e) {
             e.printStackTrace();
+            return null;
         }
         return null;
     }
     public static JSONObject purchasesearchWithTransfers(String fromId, String toId,String acrossId, String across,String from, String to, String dateDepartment) throws InterruptedException {
-        JSONArray before = (JSONArray)purchasesearch(fromId,acrossId,from,across,dateDepartment).get("value");
+        JSONObject beforeResponse = purchasesearch(fromId,acrossId,from,across,dateDepartment);
+        System.out.println("inside purchasesearchWithTransfers: " + beforeResponse);
         Thread.sleep(3000);
-        JSONArray after = (JSONArray)purchasesearch(acrossId,toId,across,to,dateDepartment).get("value");
+        JSONObject afterResponse = purchasesearch(acrossId,toId,across,to,dateDepartment);
+        System.out.println("inside purchasesearchWithTransfers: " + afterResponse);
+        if(beforeResponse==null||afterResponse==null){
+            return null;
+        }
+        JSONArray before = (JSONArray) beforeResponse.get("value");
+        JSONArray after = (JSONArray)afterResponse.get("value");
         for(int i=0;i<before.size();i++){
             JSONObject trainBefore = (JSONObject) before.get(i);
             String num = String.valueOf(trainBefore.get("num"));
@@ -203,6 +221,7 @@ public class UZApi {
                 }
             }
         }
+        System.out.println("RETURNING");
         return null;
     }
     private static int getTimelongmillisFromString(String timestring){
@@ -218,5 +237,4 @@ public class UZApi {
     Спочатку визначаємо всі міста, через які будемо шукати поїзди з пересадками.
     Після цього шукаємо поїзди з початкової до пересадкової станції, а потім з
     пересадкової до кінцевої.
-
 */

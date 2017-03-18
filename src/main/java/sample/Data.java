@@ -46,11 +46,12 @@ public class Data {
            while((readed = is.read(buff))!=-1){
                response += new String(buff,0,readed,"UTF-8");
            }
+           System.out.println(response);
            String key = "Common.setOpacHover($$v('#footer .right a'), 70);});";
-           if(response.contains("Common.setOpacHover($$v('#footer .right a'), 70);});")){
+          /* if(response.contains("Common.setOpacHover($$v('#footer .right a'), 70);});")){
                String rawToken = new JJencoder().decode(response.substring(response.lastIndexOf(key)+key.length(),response.lastIndexOf("</script></body></html>")));
                Data.token = rawToken.substring(34,66);
-           }
+           }*/
        } catch (MalformedURLException e) {
            e.printStackTrace();
        } catch (IOException e) {

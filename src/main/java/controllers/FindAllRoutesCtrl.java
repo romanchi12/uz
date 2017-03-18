@@ -15,7 +15,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -131,7 +134,8 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
         trainsTable.setItems(trains);
         trainsTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                //dialog
+                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
+                stage.setScene(ControllerManager.changeSceneTo("TrainDetailsCtrl","TrainDetailsView"));
             }
         });
         from.setItems(citiesFrom);

@@ -5,3 +5,10 @@
     -fx-text-fill: #265c76;
     -fx-alignment: center;
 }
+.uz-text-small{
+    -fx-font-family: Verdana;
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+    -fx-text-fill: #265c76;
+    -fx-alignment: center;
+}
