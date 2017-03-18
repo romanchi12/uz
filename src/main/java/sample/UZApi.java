@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -165,7 +166,7 @@ public class UZApi {
                 System.out.println(response);
                 JSONObject jsonObject = (JSONObject) JSONValue.parseWithException(response);
                 System.out.println("jsonobject.error = " + jsonObject.get("error"));
-                System.out.println((String)(jsonObject.get("error")));
+                //System.out.println((String)(jsonObject.get("error")));
                 if(((jsonObject.get("error")) == null)){
                     System.out.println("return jsonObject;");
                     return jsonObject;
@@ -190,10 +191,10 @@ public class UZApi {
     }
     public static JSONObject purchasesearchWithTransfers(String fromId, String toId,String acrossId, String across,String from, String to, String dateDepartment) throws InterruptedException {
         JSONObject beforeResponse = purchasesearch(fromId,acrossId,from,across,dateDepartment);
-        System.out.println("inside purchasesearchWithTransfers: " + beforeResponse);
+        //System.out.println("inside purchasesearchWithTransfers: " + beforeResponse);
         Thread.sleep(3000);
         JSONObject afterResponse = purchasesearch(acrossId,toId,across,to,dateDepartment);
-        System.out.println("inside purchasesearchWithTransfers: " + afterResponse);
+        //System.out.println("inside purchasesearchWithTransfers: " + afterResponse);
         if(beforeResponse==null||afterResponse==null){
             return null;
         }
@@ -221,8 +222,26 @@ public class UZApi {
                 }
             }
         }
-        System.out.println("RETURNING");
+        //System.out.println("RETURNING");
         return null;
+    }
+    public static ArrayList<JSONObject> purchasesearchWithAllTransfers(String fromId, String toId , String from, String to, String dateDepartment){
+        ArrayList<JSONObject> rezult = new ArrayList<JSONObject>();
+        for(String across:mainRailwayStations.keySet()){
+            System.out.println("transfer in " + across+"("+mainRailwayStations.get(across)+")");
+            try {
+                if(across.equals(from)||across.equals(to)){
+                    continue;
+                }
+                Thread.sleep(1500);
+                JSONObject oneTransfer = purchasesearchWithTransfers(fromId,toId,mainRailwayStations.get(across),across,from,to,dateDepartment);
+                //rezult.add(oneTransfer);
+                System.out.println("ok");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return rezult;
     }
     private static int getTimelongmillisFromString(String timestring){
         return Integer.valueOf(timestring.split(":")[0])*3600 + Integer.valueOf(timestring.split(":")[1])*60;
