@@ -1,6 +1,7 @@
 package controllers;
 
 import com.sun.org.apache.xml.internal.security.Init;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -132,10 +133,23 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
         numtonum.setCellValueFactory(new PropertyValueFactory<TrainCouple,String>("numtonum"));
         allTime.setCellValueFactory(new PropertyValueFactory<TrainCouple,String>("allTime"));
         trainsTable.setItems(trains);
-        trainsTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
+        trainsTable.setOnMouseReleased(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
                 Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
                 stage.setScene(ControllerManager.changeSceneTo("TrainDetailsCtrl","TrainDetailsView"));
+                Platform.runLater(new Runnable(){
+                    public void run() {
+                        TrainDetailsCtrl trainDetailsCtrl = (TrainDetailsCtrl)ControllerManager.getControllers().get("TrainDetailsCtrl");
+                        TrainCouple selected = trainsTable.getSelectionModel().getSelectedItem();
+                        trainDetailsCtrl.trainToNum.setText(selected.getTo().getNum());
+                        trainDetailsCtrl.trainToName.setText(selected.getTo().getFromStation()+" - " + selected.getTo().getToStation());
+                        trainDetailsCtrl.trainFromNum.setText(selected.getFrom().getNum());
+                        trainDetailsCtrl.trainFromName.setText(selected.getFrom().getFromStation()+" - " + selected.getFrom().getToStation());
+                        trainDetailsCtrl.transfer.setText(selected.getTransfer());
+                        trainDetailsCtrl.trainFromDate.setText(selected.getFrom().getTimeDepartment());
+                        trainDetailsCtrl.trainToDate.setText(selected.getTo().getTimeDepartment());
+                    }
+                });
             }
         });
         from.setItems(citiesFrom);

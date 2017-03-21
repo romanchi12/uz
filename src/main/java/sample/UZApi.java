@@ -191,10 +191,8 @@ public class UZApi {
     }
     public static JSONObject purchasesearchWithTransfers(String fromId, String toId,String acrossId, String across,String from, String to, String dateDepartment) throws InterruptedException {
         JSONObject beforeResponse = purchasesearch(fromId,acrossId,from,across,dateDepartment);
-        //System.out.println("inside purchasesearchWithTransfers: " + beforeResponse);
         Thread.sleep(3000);
         JSONObject afterResponse = purchasesearch(acrossId,toId,across,to,dateDepartment);
-        //System.out.println("inside purchasesearchWithTransfers: " + afterResponse);
         if(beforeResponse==null||afterResponse==null){
             return null;
         }
@@ -202,23 +200,34 @@ public class UZApi {
         JSONArray after = (JSONArray)afterResponse.get("value");
         for(int i=0;i<before.size();i++){
             JSONObject trainBefore = (JSONObject) before.get(i);
+            System.out.println(trainBefore);
             String num = String.valueOf(trainBefore.get("num"));
             String travelTime = String.valueOf(trainBefore.get("travel_time"));
             JSONObject fromData = (JSONObject) trainBefore.get("from");
             JSONObject toData = (JSONObject) trainBefore.get("till");
+            String fromStation = String.valueOf(fromData.get("station"));
+            String toStation = String.valueOf(toData.get("station"));
+
+            String date = String.valueOf(fromData.get("src_date"));
             String timeDepartment = String.valueOf(fromData.get("date"));
             String timeArrival = String.valueOf(toData.get("date"));
             for(int j=0;j<after.size();j++){
                 JSONObject trainAfter = (JSONObject) after.get(j);
+                System.out.println(trainAfter);
                 String _num = String.valueOf(trainAfter.get("num"));
                 String _travelTime = String.valueOf(trainAfter.get("travel_time"));
                 JSONObject _fromData = (JSONObject) trainAfter.get("from");
                 JSONObject _toData = (JSONObject) trainAfter.get("till");
+                String _fromStation = String.valueOf(_fromData.get("station"));
+                String _toStation = String.valueOf(_toData.get("station"));
+                String _date = String.valueOf(_fromData.get("src_date"));
                 String _timeDepartment = String.valueOf(_fromData.get("date"));
                 String _timeArrival = String.valueOf(_toData.get("date"));
                 if(Long.valueOf(_timeDepartment).compareTo(Long.valueOf(timeArrival))>=0){
                     System.out.println(num+"->"+_num);
-                    ((FindAllRoutesCtrl)ControllerManager.getControllers().get("FindAllRoutesCtrl")).getTrains().add(new TrainCouple(num + " ->  " + _num,getStringFromTimelongmillis(Long.valueOf(_timeArrival) - Long.valueOf(timeDepartment))));
+                    Train fromTrain = new Train(num,travelTime,fromStation,toStation,date,"dateArrival");
+                    Train toTrain = new Train(_num,_travelTime,_fromStation,_toStation, _date,"dateArrival");
+                    ((FindAllRoutesCtrl)ControllerManager.getControllers().get("FindAllRoutesCtrl")).getTrains().add(new TrainCouple(fromTrain,toTrain,across,num + " ->  " + _num,getStringFromTimelongmillis(Long.valueOf(_timeArrival) - Long.valueOf(timeDepartment))));
                 }
             }
         }
