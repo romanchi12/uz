@@ -10,11 +10,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -189,7 +189,7 @@ public class UZApi {
         }
         return null;
     }
-    public static JSONObject purchasesearchWithTransfers(String fromId, String toId,String acrossId, String across,String from, String to, String dateDepartment) throws InterruptedException {
+    public static JSONObject purchasesearchWithTransfers(String fromId, String toId, String acrossId, final String across, String from, String to, String dateDepartment) throws InterruptedException {
         JSONObject beforeResponse = purchasesearch(fromId,acrossId,from,across,dateDepartment);
         Thread.sleep(3000);
         JSONObject afterResponse = purchasesearch(acrossId,toId,across,to,dateDepartment);
@@ -198,40 +198,50 @@ public class UZApi {
         }
         JSONArray before = (JSONArray) beforeResponse.get("value");
         JSONArray after = (JSONArray)afterResponse.get("value");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd MMM HH:mm YYYY");
+        System.out.println(dateFormatter.format(new Date(1492459680)));
+        System.out.println(dateFormatter.format(new Date(139289680)));
         for(int i=0;i<before.size();i++){
             JSONObject trainBefore = (JSONObject) before.get(i);
             System.out.println(trainBefore);
-            String num = String.valueOf(trainBefore.get("num"));
-            String travelTime = String.valueOf(trainBefore.get("travel_time"));
+            final String num = String.valueOf(trainBefore.get("num"));
+            final String travelTime = String.valueOf(trainBefore.get("travel_time"));
             JSONObject fromData = (JSONObject) trainBefore.get("from");
             JSONObject toData = (JSONObject) trainBefore.get("till");
-            String fromStation = String.valueOf(fromData.get("station"));
-            String toStation = String.valueOf(toData.get("station"));
-
+            final String fromStation = String.valueOf(fromData.get("station"));
+            final String toStation = String.valueOf(toData.get("station"));
             String date = String.valueOf(fromData.get("src_date"));
-            String timeDepartment = String.valueOf(fromData.get("date"));
-            String timeArrival = String.valueOf(toData.get("date"));
+            final String timeDepartment = String.valueOf(fromData.get("date"));
+            final String timeArrival = String.valueOf(toData.get("date"));
+           // System.out.println(String.valueOf(fromData.get("date"))+" "+ Long.valueOf(String.valueOf(fromData.get("date"))+"000"));
+            final String fromDateFormatted = dateFormatter.format(new Date(Long.valueOf(String.valueOf(fromData.get("date"))+"000")));
+            final String toDateFormatted = dateFormatter.format(new Date(Long.valueOf(String.valueOf(toData.get("date"))+"000")));
             for(int j=0;j<after.size();j++){
                 JSONObject trainAfter = (JSONObject) after.get(j);
                 System.out.println(trainAfter);
-                String _num = String.valueOf(trainAfter.get("num"));
-                String _travelTime = String.valueOf(trainAfter.get("travel_time"));
+                final String _num = String.valueOf(trainAfter.get("num"));
+                final String _travelTime = String.valueOf(trainAfter.get("travel_time"));
                 JSONObject _fromData = (JSONObject) trainAfter.get("from");
                 JSONObject _toData = (JSONObject) trainAfter.get("till");
-                String _fromStation = String.valueOf(_fromData.get("station"));
-                String _toStation = String.valueOf(_toData.get("station"));
+                final String _fromStation = String.valueOf(_fromData.get("station"));
+                final String _toStation = String.valueOf(_toData.get("station"));
                 String _date = String.valueOf(_fromData.get("src_date"));
-                String _timeDepartment = String.valueOf(_fromData.get("date"));
-                String _timeArrival = String.valueOf(_toData.get("date"));
+                final String _timeDepartment = String.valueOf(_fromData.get("date"));
+                final String _timeArrival = String.valueOf(_toData.get("date"));
+                final String _fromDateFormatted =dateFormatter.format(new Date(Long.valueOf(String.valueOf(_fromData.get("date"))+"000")));
+                final String _toDateFormatted = dateFormatter.format(new Date(Long.valueOf(String.valueOf(_toData.get("date"))+"000")));
                 if(Long.valueOf(_timeDepartment).compareTo(Long.valueOf(timeArrival))>=0){
                     System.out.println(num+"->"+_num);
-                    Train fromTrain = new Train(num,travelTime,fromStation,toStation,date,"dateArrival");
-                    Train toTrain = new Train(_num,_travelTime,_fromStation,_toStation, _date,"dateArrival");
-                    ((FindAllRoutesCtrl)ControllerManager.getControllers().get("FindAllRoutesCtrl")).getTrains().add(new TrainCouple(fromTrain,toTrain,across,num + " ->  " + _num,getStringFromTimelongmillis(Long.valueOf(_timeArrival) - Long.valueOf(timeDepartment))));
-                }
-            }
+                    final Train fromTrain = new Train(num,travelTime,fromStation,toStation,fromDateFormatted,toDateFormatted);
+                    final Train toTrain = new Train(_num,_travelTime,_fromStation,_toStation, _fromDateFormatted,_toDateFormatted);
+                    Platform.runLater(new Runnable() {
+                        public void run() {
+                            ((FindAllRoutesCtrl)ControllerManager.getControllers().get("FindAllRoutesCtrl")).getTrains().add(new TrainCouple(fromTrain,toTrain,across,num + " ->  " + _num,getStringFromTimelongmillis(Long.valueOf(_timeArrival)-Long.valueOf(timeDepartment)),getStringFromTimelongmillis(Long.valueOf(_timeDepartment)-Long.valueOf(timeArrival))));
+                        }
+                    });
+                    }
         }
-        //System.out.println("RETURNING");
+        }
         return null;
     }
     public static ArrayList<JSONObject> purchasesearchWithAllTransfers(String fromId, String toId , String from, String to, String dateDepartment){

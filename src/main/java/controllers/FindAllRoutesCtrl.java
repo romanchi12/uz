@@ -2,6 +2,11 @@ package controllers;
 
 import com.sun.org.apache.xml.internal.security.Init;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.Property;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,7 +25,9 @@ import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.media.Track;
 import javafx.stage.Stage;
+import javafx.util.converter.NumberStringConverter;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import sample.*;
@@ -37,12 +44,14 @@ import java.util.ResourceBundle;
 /**
  * Created by Роман on 03.03.2017.
  */
-public class FindAllRoutesCtrl extends Ctrl implements Initializable{
+public class FindAllRoutesCtrl extends Ctrl implements Initializable {
 
+    public Label amountOfFoundedRoutes;
     ObservableList<TrainCouple> trains;
     ObservableList<String> citiesFrom;
     ObservableList<String> citiesAcross;
     ObservableList<String> citiesTo;
+
     public String getDateDepartment() {
         return dateDepartment;
     }
@@ -70,6 +79,7 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
     public ComboBox<String> getTo() {
         return to;
     }
+
     public Button getSearchWithTransfersBtn() {
         return searchWithTransfersBtn;
     }
@@ -83,7 +93,7 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
     @FXML
     public ComboBox<String> from;
     @FXML
-    public CheckBox isWithTransfers;
+    public CheckBox isAcross;
     @FXML
     public ComboBox<String> across;
     @FXML
@@ -95,10 +105,9 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
     @FXML
     public TableView<TrainCouple> trainsTable;
     @FXML
-    public TableColumn<TrainCouple,String> numtonum;
+    public TableColumn<TrainCouple, String> numtonum;
     @FXML
-    public TableColumn<TrainCouple,String> allTime;
-
+    public TableColumn<TrainCouple, String> allTime;
 
 
     @FXML
@@ -110,15 +119,16 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
         SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
         this.dateDepartment = new String(f.format(date));
         this.fromId = UZApi.getCityIdByName(from.getSelectionModel().getSelectedItem());
-        this.acrossId = UZApi.getCityIdByName(across.getSelectionModel().getSelectedItem());
+        if (this.isAcross.isSelected()) {
+            this.acrossId = UZApi.getCityIdByName(across.getSelectionModel().getSelectedItem());
+        }
         this.toId = UZApi.getCityIdByName(to.getEditor().getText());
-        System.out.println(this.dateDepartment + " " + this.fromId + " " + this.toId + " " + this.acrossId);
         new Thread(new FindAllRoutesTask()).start();
     }
 
     public void backToMonitoring(ActionEvent actionEvent) {
-        Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(ControllerManager.changeSceneTo("MonitoringCtrl","MonitoringView"));
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(ControllerManager.changeSceneTo("MonitoringCtrl", "MonitoringView"));
     }
 
     public ObservableList<TrainCouple> getTrains() {
@@ -127,27 +137,37 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
 
     public void initialize(URL location, ResourceBundle resources) {
         trains = FXCollections.observableArrayList();
+        //amountOfFoundedRoutes.textProperty().bind();
+        SimpleListProperty<TrainCouple> slp = new SimpleListProperty<TrainCouple>(trains);
+        trains.add(new TrainCouple(new Train("","","","","",""),new Train("","","","","",""),"","","",""));
+        trains.add(new TrainCouple(new Train("","","","","",""),new Train("","","","","",""),"","","",""));
+        System.out.println("****************" + slp.sizeProperty());
+        amountOfFoundedRoutes.textProperty().bind(slp.sizeProperty().asString());
         citiesFrom = FXCollections.observableArrayList();
         citiesAcross = FXCollections.observableArrayList();
         citiesTo = FXCollections.observableArrayList();
-        numtonum.setCellValueFactory(new PropertyValueFactory<TrainCouple,String>("numtonum"));
-        allTime.setCellValueFactory(new PropertyValueFactory<TrainCouple,String>("allTime"));
+        numtonum.setCellValueFactory(new PropertyValueFactory<TrainCouple, String>("numtonum"));
+        allTime.setCellValueFactory(new PropertyValueFactory<TrainCouple, String>("allTime"));
         trainsTable.setItems(trains);
         trainsTable.setOnMouseReleased(new EventHandler<MouseEvent>() {
             public void handle(MouseEvent event) {
-                Stage stage = (Stage)((Node)event.getSource()).getScene().getWindow();
-                stage.setScene(ControllerManager.changeSceneTo("TrainDetailsCtrl","TrainDetailsView"));
-                Platform.runLater(new Runnable(){
+                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                stage.setScene(ControllerManager.changeSceneTo("TrainDetailsCtrl", "TrainDetailsView"));
+                Platform.runLater(new Runnable() {
                     public void run() {
-                        TrainDetailsCtrl trainDetailsCtrl = (TrainDetailsCtrl)ControllerManager.getControllers().get("TrainDetailsCtrl");
+                        TrainDetailsCtrl trainDetailsCtrl = (TrainDetailsCtrl) ControllerManager.getControllers().get("TrainDetailsCtrl");
                         TrainCouple selected = trainsTable.getSelectionModel().getSelectedItem();
                         trainDetailsCtrl.trainToNum.setText(selected.getTo().getNum());
-                        trainDetailsCtrl.trainToName.setText(selected.getTo().getFromStation()+" - " + selected.getTo().getToStation());
+                        //System.out.println(trainDetailsCtrl.trainToNum.getText()+"**********");
+                        trainDetailsCtrl.trainToName.setText(selected.getTo().getFromStation() + " - " + selected.getTo().getToStation());
                         trainDetailsCtrl.trainFromNum.setText(selected.getFrom().getNum());
-                        trainDetailsCtrl.trainFromName.setText(selected.getFrom().getFromStation()+" - " + selected.getFrom().getToStation());
+                        trainDetailsCtrl.trainFromName.setText(selected.getFrom().getFromStation() + " - " + selected.getFrom().getToStation());
                         trainDetailsCtrl.transfer.setText(selected.getTransfer());
-                        trainDetailsCtrl.trainFromDate.setText(selected.getFrom().getTimeDepartment());
-                        trainDetailsCtrl.trainToDate.setText(selected.getTo().getTimeDepartment());
+                        trainDetailsCtrl.transferTime.setText(selected.getTransferTime());
+                        trainDetailsCtrl.trainFromDateDepartment.setText(selected.getFrom().getTimeDepartment());
+                        trainDetailsCtrl.trainFromDateArrival.setText(selected.getFrom().getTimeArrival());
+                        trainDetailsCtrl.trainToDateDepartment.setText(selected.getTo().getTimeDepartment());
+                        trainDetailsCtrl.trainToDateArrival.setText(selected.getTo().getTimeArrival());
                     }
                 });
             }
@@ -160,7 +180,7 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
                 citiesFrom.clear();
                 //String city = ((ComboBox<String>) event.getSource()).getSelectionModel().getSelectedItem();
                 JSONArray citiesList = UZApi.getListOfCitiesByName(from.getEditor().getText());
-                for(int i=0;i<citiesList.size();i++){
+                for (int i = 0; i < citiesList.size(); i++) {
                     JSONObject city = (JSONObject) citiesList.get(i);
                     String cityName = String.valueOf(city.get("label"));
                     citiesFrom.add(cityName);
@@ -168,7 +188,7 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
                 from.show();
             }
         });
-        across.disableProperty().bind(isWithTransfers.selectedProperty().not());
+        across.disableProperty().bind(isAcross.selectedProperty().not());
         across.setItems(citiesAcross);
         across.setVisibleRowCount(10);
         across.autosize();
@@ -177,7 +197,7 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
                 citiesAcross.clear();
                 //String city = ((ComboBox<String>) event.getSource()).getSelectionModel().getSelectedItem();
                 JSONArray citiesList = UZApi.getListOfCitiesByName(across.getEditor().getText());
-                for(int i=0;i<citiesList.size();i++){
+                for (int i = 0; i < citiesList.size(); i++) {
                     JSONObject city = (JSONObject) citiesList.get(i);
                     String cityName = String.valueOf(city.get("label"));
                     citiesAcross.add(cityName);
@@ -191,9 +211,8 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
         to.getEditor().setOnKeyTyped(new EventHandler<KeyEvent>() {
             public void handle(KeyEvent event) {
                 citiesTo.clear();
-                //String city = ((ComboBox<String>) event.getSource()).getSelectionModel().getSelectedItem();
                 JSONArray citiesList = UZApi.getListOfCitiesByName(to.getEditor().getText());
-                for(int i=0;i<citiesList.size();i++){
+                for (int i = 0; i < citiesList.size(); i++) {
                     JSONObject city = (JSONObject) citiesList.get(i);
                     String cityName = String.valueOf(city.get("label"));
                     citiesTo.add(cityName);
@@ -202,7 +221,6 @@ public class FindAllRoutesCtrl extends Ctrl implements Initializable{
             }
         });
     }
-
 
 
 }

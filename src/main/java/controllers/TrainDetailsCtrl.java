@@ -24,13 +24,15 @@ public class TrainDetailsCtrl extends Ctrl {
     @FXML
     public Label trainToName;
     @FXML
-    public Label trainFromDate;
-    @FXML
-    public Label trainToDate;
-    @FXML
     public Button closeBtn;
     @FXML
     public Label transfer;
+    public Label trainToDateArrival;
+    public Label trainToDateDepartment;
+    public Label trainFromDateArrival;
+    public Label trainFromDateDepartment;
+    public Label transferTime;
+
     public void backToFindAllRoutes(ActionEvent actionEvent) {
         Stage stage = (Stage)((Node)actionEvent.getSource()).getScene().getWindow();
         stage.setScene(ControllerManager.changeSceneTo("FindAllRoutesCtrl","FindAllRoutesView"));

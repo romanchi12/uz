@@ -39,7 +39,9 @@ public class Train {
 
     String timeDepartment;
     String timeArrival;
-    Train(String num, String travelTime, String fromStation, String toStation,String timeDepartment, String timeArrival){
+    public Train(String num, String travelTime, String fromStation, String toStation,String timeDepartment, String timeArrival){
+        System.out.println(timeDepartment+"***********"+timeArrival);
+
         this.num = num;
         this.travelTime = travelTime;
         this.fromStation = fromStation;

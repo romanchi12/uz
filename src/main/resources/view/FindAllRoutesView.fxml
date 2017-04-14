@@ -17,8 +17,8 @@
    <center>
       <TableView fx:id="trainsTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="numtonum" prefWidth="75.0" text="Пересадка" />
-          <TableColumn fx:id="allTime" prefWidth="113.0" text="Час у дорозі" />
+          <TableColumn fx:id="numtonum" prefWidth="205.0" text="Пересадка" />
+          <TableColumn fx:id="allTime" prefWidth="190.0" text="Час у дорозі" />
         </columns>
       </TableView>
    </center>
@@ -30,17 +30,18 @@
                   <Insets bottom="10.0" />
                </VBox.margin>
             </ComboBox>
-            <CheckBox fx:id="isWithTransfers" mnemonicParsing="false" text="З пересадками">
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-            </CheckBox>
-            <ComboBox fx:id="across" editable="true" promptText="Через" snapToPixel="false">
+            <ComboBox fx:id="to" editable="true" promptText="Куди">
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
             </ComboBox>
-            <ComboBox fx:id="to" editable="true" promptText="Куди">
+            <CheckBox fx:id="onlyDirect" mnemonicParsing="false" text="Тільки прямі" />
+            <CheckBox fx:id="isAcross" mnemonicParsing="false" text="Через станцію">
+               <VBox.margin>
+                  <Insets bottom="10.0" top="10.0" />
+               </VBox.margin>
+            </CheckBox>
+            <ComboBox fx:id="across" editable="true" promptText="Через" snapToPixel="false">
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
@@ -57,4 +58,12 @@
          </padding>
       </VBox>
    </left>
+   <bottom>
+      <ToolBar prefHeight="0.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <items>
+            <Label text="Знайдено маршрутів: " />
+            <Label fx:id="amountOfFoundedRoutes" text="0" />
+         </items>
+      </ToolBar>
+   </bottom>
 </BorderPane>
